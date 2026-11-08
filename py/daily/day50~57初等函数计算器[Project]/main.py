@@ -1,13 +1,14 @@
-try:
-    import pack
-    pack.copyer(r"C:\Users\cutes\Desktop\copy\初等函数计算器","main.txt",6)
-except ModuleNotFoundError:pass
-#调用打包复制工具(可删,以下为正文)
-#=========主交互文件=========#
 """
       主交互文件
 负责调用相关模块处理输入
 """
+#=========主交互文件=========#
+try:
+    import pack
+    pack.copyer(r"C:\Users\cutes\Desktop\copy\初等函数计算器","main.txt",11)
+except ModuleNotFoundError:pass
+#调用打包复制工具(可删,以下为正文)
+#=========主交互文件=========#
 import transformer as t;import stack as s;import calculation as c
 #初始化声明
 def run(shift):

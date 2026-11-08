@@ -1,15 +1,16 @@
-try:
-    import pack
-    pack.copyer(r"C:\Users\cutes\Desktop\copy\初等函数计算器","calculation.txt",6)
-except ModuleNotFoundError:pass
-#调用打包复制工具(可删,以下为正文)
-#=========计算包=========#
 """
                         计算包
                 基于浮点数缩放为大整数进行计算
         传入与返回值均为网格值(真值*zoom)的整数结果
 方块函数为模块内调用且只由模块内一般函数传缩放后参数故无需内部缩放
 """
+#=========计算包=========#
+try:
+    import pack
+    pack.copyer(r"C:\Users\cutes\Desktop\copy\初等函数计算器","calculation.txt",13)
+except ModuleNotFoundError:pass
+#调用打包复制工具(可删,以下为正文)
+#=========计算包=========#
 import transformer as t
 inf=1e303;zoom=None;block_set={"por","exp","atan","arth","ln"}
 class CalculateError(Exception):pass

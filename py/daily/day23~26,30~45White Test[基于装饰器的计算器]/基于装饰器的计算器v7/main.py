@@ -7,11 +7,12 @@ class Main():
     #---defblock---#
 
     def __init__(self):
-        self.token=re.compile(r"\.\d*|\d+\.?\d*|[+\-*/^=\(\)]")                    #最小token为"一串有长度数字+小数点+任意长度数字"(表示整小数)或"任意运算符"(加减乘除乘方括号)
+        self.token=re.compile(r"\.\d*|\d+\.?\d*|[+\-*/^=\(\)\[\]\{\}]")                    #最小token为"一串有长度数字+小数点+任意长度数字"(表示整小数)或"任意运算符"(加减乘除乘方括号)
         self.put=[]
         self.precision=False
-        self.operator_dict={"+":add,"-":minus,"*":times,"/":quotient,"^":power}
-        self.operator_weight_dict={"+":1,"-":1,"*":2,"/":2,"^":3,"(":0}
+        self.operator_dict={"+":add,"-":minus,"*":times,"/":quotient,"^":power,"&":times}
+        self.operator_weight_dict={"+":1,"-":1,"*":2,"/":2,"&":3,"^":4,"(":0,"[":0,"{":0}
+        self.brackets_dict={")":"(","]":"[","}":"{"}
         self.error="别乱输喵omo"
         self.answer=None
         self.t=0
@@ -90,85 +91,76 @@ class Main():
 
     #---defblock---#
 
-    def calculation(self):
+    def calculation(self):    
         i=0;num_stack=[];operator_stack=[]
-        if len(self.put)==0:print("这根本没东西可算喵omo");return False
-        if self.put[-1] not in ("=",")"):
-            try:float(self.put[-1])
-            except ValueError:print(self.error);return False
-        elif self.put[-1]=="=":self.put.pop()
-        #初始化判断
         try:
-            while i<len(self.put):#计算栈循环  
-                if i==0 and self.put[0] not in ("-","("):#循环初始化
-                    self.put[0]=float(self.put[0])
-
-                if self.put[i]=="-":#负号合并/减法入栈判断
-                    if i==0 or self.put[i-1] in self.operator_dict or self.put[i-1]=="(":#负值判断
-                        self.put[i]=(-float(self.put[i+1]))
-                        del(self.put[i+1])
-                        num_stack.append(self.put[i])
-                        if i<len(self.put)-1 and self.put[i+1]=="(":
-                            while operator_stack and self.pop_judge(operator="*",top=operator_stack[-1]):
-                                num_stack.append(self.stackpoper(operator_stack=operator_stack,num_stack=num_stack))
-                            operator_stack.append("*")
-                        i+=1
-
-                    else:#减法判断
-                        if self.put[i+1]!=("-","("):#正括号当滚木直接跳过
-                            self.put[i+1]=float(self.put[i+1])
+            if len(self.put)==0:print("这根本没东西可算喵omo");return False
+            if self.put[-1]!="=" and self.put[-1] not in self.brackets_dict:
+                float(self.put[-1])
+            elif self.put[-1]=="=":self.put.pop()
+            #初始化判断
+            while i<len(self.put):  
+            #计算栈循环
+                if self.put[i] in ("+","-"):
+                #一阶算符的入栈判断与合并
+                    while self.put[i+1] in ("+","-"):
+                    #一阶算符的合并
+                        if self.put[i]=="+":
+                            if self.put[i+1]=="+":del self.put[i+1]
+                            else:self.put[i]="-";del self.put[i+1]
+                        else:
+                            if self.put[i+1]=="+":del self.put[i+1]
+                            else:self.put[i]="+";del self.put[i+1]
+                    if i==0 or self.put[i-1] in self.operator_weight_dict:
+                        if self.put[i]=="+":num_stack.append(1);operator_stack.append("&")
+                        else:num_stack.append(-1);operator_stack.append("&")
+                    else:
                         while operator_stack and self.pop_judge(operator=self.put[i],top=operator_stack[-1]):
                             num_stack.append(self.stackpoper(operator_stack=operator_stack,num_stack=num_stack))
                         operator_stack.append(self.put[i])
-                        i+=1
+                    i+=1
 
-                else:#非负符号及数字入栈判断
-                    if self.put[i] in self.operator_weight_dict:#("+","*","/","^","(",")")入栈判断
-                        if self.put[i]=="(":#"("入栈判断
-                            if self.put[i+1] not in ("-","("):
-                                self.put[i+1]=float(self.put[i+1])
-                                operator_stack.append(self.put[i])
-                                i+=1
-                            else:operator_stack.append(self.put[i]);i+=1
+                elif self.put[i] in ("*","/","^"):
+                #高阶算符入栈判断
+                    while operator_stack and self.pop_judge(operator=self.put[i],top=operator_stack[-1]):
+                        num_stack.append(self.stackpoper(operator_stack=operator_stack,num_stack=num_stack))
+                    operator_stack.append(self.put[i])
+                    i+=1
 
-                        else:#("+","*","/","^")入栈判断
-                            if self.put[i+1]!=("-","("):#正括号当滚木直接跳
-                                self.put[i+1]=float(self.put[i+1])
-                            while operator_stack and self.pop_judge(operator=self.put[i],top=operator_stack[-1]):
-                                num_stack.append(self.stackpoper(operator_stack=operator_stack,num_stack=num_stack))
-                            operator_stack.append(self.put[i])
-                            i+=1
-
-                    elif isinstance(self.put[i],float):#数字入栈
-                        num_stack.append(self.put[i])
-                        if i<len(self.put)-1 and self.put[i+1]=="(":
-                            while operator_stack and self.pop_judge(operator="*",top=operator_stack[-1]):
-                                num_stack.append(self.stackpoper(operator_stack=operator_stack,num_stack=num_stack))
-                            operator_stack.append("*")
-                        i+=1
-
-                    elif self.put[i]==")":#")"入栈,括号收官
-                        while operator_stack[-1]!="(":
+                elif self.put[i] in self.brackets_dict.values():operator_stack.append(self.put[i]);i+=1
+                #括号入栈判断
+                elif self.put[i] in self.brackets_dict:
+                #反括号入栈,括号收官
+                    while operator_stack[-1]!=self.brackets_dict[self.put[i]]:
+                        num_stack.append(self.stackpoper(operator_stack=operator_stack,num_stack=num_stack))
+                    operator_stack.pop()
+                    if i<len(self.put)-1 and self.put[i+1] in self.brackets_dict.values():
+                        while operator_stack and self.pop_judge(operator="*",top=operator_stack[-1]):
                             num_stack.append(self.stackpoper(operator_stack=operator_stack,num_stack=num_stack))
-                        operator_stack.pop()
-                        if i<len(self.put)-1 and self.put[i+1]=="(":
-                            while operator_stack and self.pop_judge(operator="*",top=operator_stack[-1]):
-                                num_stack.append(self.stackpoper(operator_stack=operator_stack,num_stack=num_stack))
-                            operator_stack.append("*")
-                        i+=1
+                        operator_stack.append("*")
+                    i+=1
 
-                    else:print(self.error);return False#非法字符检测
+                else:
+                #数字入栈兼非法输入检测
+                    num_stack.append(float(self.put[i]))
+                    if i<len(self.put)-1 and self.put[i+1] in self.brackets_dict.values():
+                        while operator_stack and self.pop_judge(operator="*",top=operator_stack[-1]):
+                            num_stack.append(self.stackpoper(operator_stack=operator_stack,num_stack=num_stack))
+                        operator_stack.append("*")
+                    i+=1
+
         except (IndexError,ValueError):print(self.error);return False
 
-        try:#答案收官
+        try:
+        #答案收官
             while operator_stack:
-                if operator_stack[-1]=="(":print(self.error);return False
+                if operator_stack[-1] in self.brackets_dict.values():print(self.error);return False
                 num_stack.append(self.stackpoper(operator_stack=operator_stack,num_stack=num_stack))
         except IndexError:print(self.error);return False
         if len(num_stack)!=1:print(self.error);return False
         self.answer=num_stack[0]
 
-        return True                 #纯净可运算math列表，运算函数分双栈
+        return True
 
 #——————classblock——————#
 

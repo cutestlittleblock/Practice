@@ -36,8 +36,10 @@ def Zoom(calfunc):
 
 @Zoom
 def arg(z):
-    """方块函数"""
-    """辐角函数用于转化复数极坐标辐角喵"""
+    """
+               方块函数
+    辐角函数用于转化复数极坐标辐角喵
+    """
     r,i=z
     if r==0:return pi()//2 if i>0 else -pi()//2
     #实部为0时辐角为±pi/2
@@ -49,8 +51,10 @@ def arg(z):
 
 @Zoom
 def por(x,y):
-    """方块函数"""
-    """整数幂函数用于计算整数次方喵"""
+    """
+             方块函数
+    整数幂函数用于计算整数次方喵
+    """
     if y<0:return zoom*zoom//por(x,-y)
     #倒数处理:x^-y=1/x^y;(x^-y)*zoom=zoom*zoom//(x^y)
     xy=zoom
@@ -63,8 +67,10 @@ def por(x,y):
 
 @Zoom
 def exp(x):
-    """方块函数"""
-    """自然指数函数用于计算e的x次方喵"""
+    """
+              方块函数
+    自然指数函数用于计算e的x次方喵
+    """
     Rn=10**(t.P-t.precision-3)
     if not isinstance(x,tuple):
     #实数域自然指数处理
@@ -92,8 +98,10 @@ def exp(x):
 
 @Zoom
 def arctan(x):
-    """方块函数"""
-    """反正切函数用于计算arctan(x)喵"""
+    """
+             方块函数
+    反正切函数用于计算arctan(x)喵
+    """
     Rn=10**(t.P-t.precision-3)
     n=0;T=x;atanx=x
     if not isinstance(x,tuple):
@@ -111,8 +119,10 @@ def arctan(x):
 
 @Zoom
 def arth(x):
-    """方块函数"""
-    """反双曲正切函数用于计算arth(x)喵"""
+    """
+              方块函数
+    反双曲正切函数用于计算arth(x)喵
+    """
     Rn=10**(t.P-t.precision-3)
     n=0;T=x;athx=x
     if not isinstance(x,tuple):
@@ -127,8 +137,10 @@ def arth(x):
 
 @Zoom
 def ln(x):
-    """方块函数"""
-    """自然对数函数用于计算ln(x)喵"""
+    """
+             方块函数
+    自然对数函数用于计算ln(x)喵
+    """
     lnx=None;k=0
     if x>=0 and not isinstance(x,tuple):
     #实数域自然对数处理

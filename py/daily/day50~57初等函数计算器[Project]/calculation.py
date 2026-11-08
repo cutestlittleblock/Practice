@@ -126,14 +126,23 @@ def arth(x):
     反双曲正切函数用于计算arth(x)喵\n
     """
     Rn=10**(t.P-t.precision-3)
-    n=0;T=x;athx=x
+    n=0;T=x;arthx=x
     if not isinstance(x,tuple):
     #实数域反双曲正切处理
-        while T>=Rn or T<=-Rn:
-            n+=1;T=T*x*x*(2*n-1)//(zoom*zoom*(2*n+1));athx+=T
-            #T{n}=x^(2n+1)/(2n+1);T{n}=T{n-1}*x^2*(2n-1)/(2n+1)--ZOOM-->T{n}=T{n-1}*x*x*(2n-1)//(zoom*zoom*(2n+1))
-            #首项自带缩放,后续项去缩放
-        return athx
+        if absolute(x)<=zoom:
+            if absolute(x)==zoom:raise CalculateError("反双曲正切函数在±1处为无定义极点喵,趋于±∞喵")
+            while T>=Rn or T<=-Rn:
+                n+=1;T=T*x*x*(2*n-1)//(zoom*zoom*(2*n+1));arthx+=T
+                #T{n}=x^(2n+1)/(2n+1);T{n}=T{n-1}*x^2*(2n-1)/(2n+1)--ZOOM-->T{n}=T{n-1}*x*x*(2n-1)//(zoom*zoom*(2n+1))
+                #首项自带缩放,后续项去缩放
+        else:arthx=basic(basic(ln(zoom+x),"-",ln(zoom-x)),"/",2*zoom)
+        #超实数域定义转复数域莫比乌斯变换:arthx=0.5ln((1+x)/(1-x))=0.5(ln(1+x)-ln(1-x))=0.5(ln(zoom+x)-ln(zoom-x))
+        return arthx
+    else:
+    #复数域反双曲正切处理
+        z=x;arthz=basic(basic(ln(basic(zoom,"+",z)),"-",ln(basic(zoom,"-",z))),"/",2*zoom)
+        #复数域莫比乌斯变换:arthz=0.5ln((1+z)/(1-z))=0.5(ln(1+z)-ln(1-z))=0.5(ln(zoom+z)-ln(zoom-z))
+        return arthz
 
 #---defblock---#
 
@@ -146,7 +155,7 @@ def ln(x):
     lnx=None;k=0
     if x>=0 and not isinstance(x,tuple):
     #实数域自然对数处理
-        if x==0:raise CalculateError("对数函数在0处为无定义极点喵,log0趋于负无穷喵")
+        if x==0:raise CalculateError("对数函数在0处为无定义极点喵,log0趋于负∞喵")
         if x<zoom:lnx=-ln(zoom*zoom//x)
         #x<1时利用恒等式ln(x)=-ln(1/x)缩放,绕开大量递推
         else:
@@ -204,7 +213,7 @@ def exponent(x,y):
 #---defblock---#
 
 @Zoom
-def absorlute(x):
+def absolute(x):
     """绝对值函数用于计算绝对值和模长喵"""
     if isinstance(x,tuple):return exponent(por(x[0],2)+por(x[1],2),zoom//2)
     #复数模运算:(xr^2+xi^2)^(1/2)
@@ -230,7 +239,7 @@ def gamma(x,o):
     #常规阶乘计算
         try:
             if x%zoom or x<0:raise ValueError
-            if not x%zoom and x<0:raise CalculateError("负整数阶乘为无定义极点喵,趋于无穷喵")
+            if not x%zoom and x<0:raise CalculateError("负整数阶乘为无定义极点喵,趋于∞喵")
             x//=zoom;y=x
             if x==0:return zoom
             for n in range(x-1,1,-1):y*=n
@@ -252,6 +261,29 @@ def logarithm(o,x,y):
                 }#推导式
     return evaluation[o]()
 
+#---defblock---#
+
+@Zoom
+def trigono(o,x):
+    """三角函数用于计算sin/cos/tan/cot/sec/csc喵"""
+    if not isinstance(x,tuple):
+    #实数域三角函数
+        sinx=exp((0,x))[1];cosx=exp((0,x))[0]
+        #e^(ix)=cosx+isinx
+    else:
+    #复数域三角函数
+        z=x;r,i=z
+        sinz=basic(basic(exp(-i,r),"-",exp(i,-r)),"/",(0,2*zoom));cosz=basic(basic(exp(-i,r),"+",exp(i,-r)),"/",2*zoom)
+        #sinz=(e^(-iz)-e^(iz))/(2i);cosz=(e^(-iz)+e^(iz))/2;z*i=(r,i)*i=(-i,r)复平面旋转
+    evaluation={
+                "sin":lambda:sinx,
+                "cos":lambda:cosx,
+                "tan":lambda:basic(sinx,"/",cosx),
+                "cot":lambda:basic(cosx,"/",sinx),
+                "sec":lambda:basic(zoom,"/",cosx),
+                "csc":lambda:basic(zoom,"/",sinx)
+                }#推导式
+    return evaluation[o]()
 #---defblock---#
 
 Euler={};Ludolphine={};IIlog={};Xlog={}

@@ -395,7 +395,7 @@ def modular_math(limit):
                             x=basic_math(x,basic_math(basic_math(1,basic_math(x,2,"^"),"-"),0.5,"^"),"/")#x=x/(1-x^2)^0.5
                     k=0
                     while absolute(x.real)>0.2 or absolute(x.imag)>0.2:
-                    #反正切参数缩放:atanx=2antan(x/(1+(1+x^2)^0.5),变参x>>x/1+(1+x^2)^0.5
+                    #反正切参数缩放:atanx=2atan(x/(1+(1+x^2)^0.5),变参x>>x/1+(1+x^2)^0.5
                         x=basic_math(x,basic_math(1,basic_math(basic_math(1,basic_math(x,2,"^"),"+"),0.5,"^"),"+"),"/")
                         #x=x/1+(1+x^2)^0.5
                         k+=1

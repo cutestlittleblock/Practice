@@ -48,12 +48,8 @@ def transint(N):
     """该函数用于精度初始化
     将浮点转为指定精度的大整数进行计算喵"""
     try:float(N)
-    except ValueError:return N
+    except (ValueError, TypeError):return N
     #跳过算符及e,pi
-    except TypeError:
-        if N[1]==0:return N[0]
-        else:return N
-    #实数复数组转回
     I,_,D=str(N).partition(".")
     return int(I+(D+"0"*P)[:P])
 

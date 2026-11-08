@@ -1,0 +1,67 @@
+一. 类与对象
+术语                        一句话定义											你代码里的例子
+类 class                    设计图纸：规定有哪些属性和方法							class Game():
+对象 / 实例				     按图纸造出的实物										game
+实例化					    类名() 这个“造对象”的动作								game=Game()
+属性 attribute				挂在对象身上的数据									self.save、self.level
+方法 method				    定义在类内部的函数									def choose_mode(self):
+self						方法内部的“我”，指被调用的那个对象					game.choose_level() 执行时，方法里的 self 就是 game
+__init__					实例化时自动执行一次的方法，负责“装行李”				开机时装载 level_dict、读 save
+
+二. 类体的脾气
+术语						一句话定义											你代码里的例子
+类体立即执行				class 下面的代码从上到下立刻跑一遍（def 除外）			掉队的 print("存档已记录") 开机就打印
+类属性					类体里直接定义的名字，全体实例共享、用 类名.x 访问		实验里 Demo.msg 被 show() 无视的那个
+缩进边界 = 类边界			缩进一层才算方法；出现顶格 def 类就“关门”				choose_mode 被关在门外 → AttributeError
+名称查找链				裸名查找顺序：局部 → 全局 → 内置，跳过类内部			方法内裸调 load_history() 报 NameError；裸调 ask_int() 没事（它在全局）
+
+三.数据的住址（判断标准：生命周期）
+术语	   				 	一句话定义	    										你代码里的例子
+作用域 scope				一个名字有效的范围									mode 只在 choose_mode 里有效
+生命周期					数据从诞生到销毁的时间段								决定住址的唯一标准
+局部变量					函数/方法内部，调用结束即销毁							healthy、guesses、key——只活一局，留局部
+全局变量					模块级顶格定义，全程存活								game（也是隐藏耦合的温床）
+实例属性					挂在对象身上，对象活着它就活着							save、mode——跨局状态，进 self
+哨兵值 sentinel			    先用占位值站岗，等真实值来接班							self.result=None、num=None
+隐藏耦合					表面上无关、实际偷偷依赖的东西							guess_game 摸全局 game——改名就悄悄炸
+
+四.   异常系统
+术语						一句话定义											你代码里的例子
+try / except				尝试跑，出事就接住									try: num=ask_int()
+raise					主动抛出一个异常										raise Egg()
+异常穿透					异常沿调用链向上找 except，穿过对象边界					ask_int（类外）抛 → choose_level（类内）接
+继承 inheritance			括号里写父类名，儿子拥有父亲的一切						class Egg(Exception)
+异常基类					Exception是所有异常的祖先；object 是万物之祖				Egg → Exception → object 三代同堂
+
+五. 方法的的进餐规则：
+术语						一句话定义											你代码里的例子
+方法可以收参数			self 只是第一个参数，不是唯一的							def save_history(self, filename="save.json")
+默认参数					带 = 的参数，不传就用默认值							game.save_history() 存默认位置
+两条补给线				self 拿对象内部的数据，参数收外部的一次性输入				self.save 来自对象，filename 来自括号
+
+六. 文件与数据加工：
+术语						一句话定义											你代码里的例子
+with open				自动关文件的管家结构									with open(...) as f:
+"w" 模式					打开即清空重写——所以存档时机必须明确					误在开机触发会顶掉存档
+json.dump / load			Python 对象 ↔ JSON 文件的写/读						save.json 的存读
+append vs extend			append 整个塞入；extend 拆一层外壳						extend([result]) 外壳被吃，塞进一个字典
+utf-8					让中文正常进出的编码									encoding="utf-8"
+
+七. 工程习惯
+术语						内容
+迁移三步法				① 挪进类缩进一层 ② 参数清空只留 self ③ 数据加 self. 前缀
+改一处跑一次				每刀必验证，bug 嫌疑范围永远=刚刚那一刀
+调试三步					列嫌疑 → 搜代码 → 验缩进（你抓“存档已记录”的实战流程）
+F2 语义化改名				改名零遗漏的正确工具（save_def 事故的解药）
+Ctrl+H + Alt+L			选区锁定替换（game. → self. 的正确姿势）
+死代码					永远执行不到的代码（"block":-1）——要么修对要么删掉
+
+
+
+
+
+
+
+
+
+

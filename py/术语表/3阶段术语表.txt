@@ -1,0 +1,15 @@
+阶段3：异常体系
+术语	                         		  含义
+Exception	      			  所有异常的基类
+try / except	     			  尝试执行代码，出错时接住异常，不让程序崩溃
+except 类型          			  只接住指定类型的异常，如 except ValueError:
+多 except 块	       			  可以写多个 except 分别接不同异常，从上到下匹配
+raise	               			  主动抛出一个异常，立即中断当前函数执行
+raise 类型()	         		  抛出指定类型的异常实例，如 raise Debug()
+异常穿透（冒泡）			  异常抛出后，如果当前函数没有 except 接住，会一层层向上传递，直到被接住或程序崩溃
+自定义异常                		  继承 Exception 定义自己的异常类，如 class Debug(Exception): pass
+except 类名（不加括号）	  except 接的是异常类型，不是实例
+ValueError				  类型对但值不合法时抛出（如 int("abc")）
+TypeError				  类型不匹配时抛出（如 "abc" < 5）
+用异常做流程控制			  利用 raise 的穿透性跳转执行流，比层层返回标志位更优雅，但有语义争议
+debug 模块				  用 raise Debug() 中断游戏流程，打印当前答案，不影响正式游戏

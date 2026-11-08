@@ -1,0 +1,17 @@
+术语						含义
+列表 (List)	 			有序可变容器，用 []，如 [1, 2, 3]
+字典 (Dict)				键值对容器，用 {}，如 {"答案": 5}
+字典取值	dict[key] 		取出对应的 value
+append()					向列表末尾追加一个元素
+extend()					将一个可迭代对象的元素逐个追加到列表末尾
+len()						取容器长度（列表元素个数、字符串字符数）
+enumerate()				同时获取列表的索引和元素，如 for i, item in enumerate(list)
+json.dump()				把 Python 对象序列化写入文件
+json.load()				从文件反序列化读出 Python 对象
+json.dumps()				序列化为字符串（不碰文件）
+json.loads()				从字符串反序列化
+ensure_ascii=False			让 JSON 正确保存中文，不转成 \uXXXX
+open()					打开文件，需指定模式（"r" 读 / "w" 写 / "a" 追加）
+with open(...) as f			上下文管理器，自动在结束时关闭文件
+FileNotFoundError		文件不存在时抛出的异常
+JSONDecodeError			文件内容不是合法 JSON 时抛出的异常

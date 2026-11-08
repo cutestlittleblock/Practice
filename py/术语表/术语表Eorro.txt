@@ -1,0 +1,12 @@
+BaseException                          ← 所有异常的老祖宗
+  └─ Exception                         ← 所有"正常"异常的爹
+       ├─ ValueError                   ← 值不对（int("abc")）
+       ├─ TypeError                    ← 类型不对（"a"+1）
+       ├─ KeyError                     ← 字典里没这个键
+       ├─ IndexError                   ← 列表越界
+       ├─ FileNotFoundError            ← 文件不存在（OSError 的子类）
+       │    └─ （它其实是）
+       │       OSError                 ← 操作系统层面错误
+       ├─ JSONDecodeError              ← json 解析失败（ValueError 的子类！）
+       ├─ UnicodeDecodeError           ← 编码错误（也是 ValueError 的子类！）
+       └─ ...

@@ -1,13 +1,14 @@
+#=========计算包=========#
 """
-                        计算包
-                基于浮点数缩放为大整数进行计算
-        传入与返回值均为网格值(真值*zoom)的整数结果
-方块函数为模块内调用且只由模块内一般函数传缩放后参数故无需内部缩放
+                           计算包\n
+                基于浮点数缩放为大整数进行计算\n
+        传入与返回值均为网格值(真值*zoom)的整数结果\n
+方块函数为模块内调用且只由模块内一般函数传缩放后参数故无需内部缩放\n
 """
 #=========计算包=========#
 try:
     import pack
-    pack.copyer(r"C:\Users\cutes\Desktop\copy\初等函数计算器","calculation.txt",13)
+    pack.copyer(r"C:\Users\cutes\Desktop\copy\初等函数计算器","calculation.txt",(8,14))
 except ModuleNotFoundError:pass
 #调用打包复制工具(可删,以下为正文)
 #=========计算包=========#
@@ -38,8 +39,8 @@ def Zoom(calfunc):
 @Zoom
 def arg(z):
     """
-               方块函数
-    辐角函数用于转化复数极坐标辐角喵
+               方块函数\n
+    辐角函数用于转化复数极坐标辐角喵\n
     """
     r,i=z
     if r==0:return pi()//2 if i>0 else -pi()//2
@@ -53,8 +54,8 @@ def arg(z):
 @Zoom
 def por(x,y):
     """
-             方块函数
-    整数幂函数用于计算整数次方喵
+             方块函数\n
+    整数幂函数用于计算整数次方喵\n
     """
     if y<0:return zoom*zoom//por(x,-y)
     #倒数处理:x^-y=1/x^y;(x^-y)*zoom=zoom*zoom//(x^y)
@@ -69,8 +70,8 @@ def por(x,y):
 @Zoom
 def exp(x):
     """
-              方块函数
-    自然指数函数用于计算e的x次方喵
+              方块函数\n
+    自然指数函数用于计算e的x次方喵\n
     """
     Rn=10**(t.P-t.precision-3)
     if not isinstance(x,tuple):
@@ -100,8 +101,8 @@ def exp(x):
 @Zoom
 def arctan(x):
     """
-             方块函数
-    反正切函数用于计算arctan(x)喵
+             方块函数\n
+    反正切函数用于计算arctan(x)喵\n
     """
     Rn=10**(t.P-t.precision-3)
     n=0;T=x;atanx=x
@@ -121,8 +122,8 @@ def arctan(x):
 @Zoom
 def arth(x):
     """
-              方块函数
-    反双曲正切函数用于计算arth(x)喵
+              方块函数\n
+    反双曲正切函数用于计算arth(x)喵\n
     """
     Rn=10**(t.P-t.precision-3)
     n=0;T=x;athx=x
@@ -139,8 +140,8 @@ def arth(x):
 @Zoom
 def ln(x):
     """
-             方块函数
-    自然对数函数用于计算ln(x)喵
+             方块函数\n
+    自然对数函数用于计算ln(x)喵\n
     """
     lnx=None;k=0
     if x>=0 and not isinstance(x,tuple):

@@ -1,11 +1,12 @@
+#=========主交互文件=========#
 """
-      主交互文件
-负责调用相关模块处理输入
+      主交互文件\n
+负责调用相关模块处理输入\n
 """
 #=========主交互文件=========#
 try:
     import pack
-    pack.copyer(r"C:\Users\cutes\Desktop\copy\初等函数计算器","main.txt",11)
+    pack.copyer(r"C:\Users\cutes\Desktop\copy\初等函数计算器","main.txt",(6,12))
 except ModuleNotFoundError:pass
 #调用打包复制工具(可删,以下为正文)
 #=========主交互文件=========#

@@ -1,11 +1,12 @@
+#=========分栈器=========#
 """
-               分栈器
-负责将输入的表达式分栈并调用计算包进行计算
+               分栈器\n
+负责将输入的表达式分栈并调用计算包进行计算\n
 """
 #=========分栈器=========#
 try:
     import pack
-    pack.copyer(r"C:\Users\cutes\Desktop\copy\初等函数计算器","stack.txt",11)
+    pack.copyer(r"C:\Users\cutes\Desktop\copy\初等函数计算器","stack.txt",(6,12))
 except ModuleNotFoundError:pass
 #调用打包复制工具(可删,以下为正文)
 #=========分栈器=========#

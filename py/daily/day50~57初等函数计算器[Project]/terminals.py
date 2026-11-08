@@ -1,14 +1,16 @@
+#=========终端=========#
 """
-          终端
-负责调用主交互文件运行程序
+          终端\n
+负责调用主交互文件运行程序\n
 """
 #=========终端=========#
 try:
     import pack
-    pack.copyer(r"C:\Users\cutes\Desktop\copy\初等函数计算器","terminals.txt",15)
+    pack.copyer(r"C:\Users\cutes\Desktop\copy\初等函数计算器","terminals.txt",(6,17))
     pack.packer(
                 r"C:\Users\cutes\Desktop\copy\初等函数计算器","初等函数计算器.txt",
-                ["terminals.py","main.py","transformer.py","stack.py","calculation.py"],[15,11,11,11,13]
+                ["terminals.py","main.py","transformer.py","stack.py","calculation.py"],
+                [(6,17),(6,12),(6,12),(6,12),(8,14)]
                 )
 except ModuleNotFoundError:pass
 #调用打包复制工具(可删,以下为正文)

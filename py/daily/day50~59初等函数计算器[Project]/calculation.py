@@ -13,7 +13,7 @@ except ModuleNotFoundError:pass
 #调用打包复制工具(可删,以下为正文)
 #=========计算包=========#
 import transformer as t
-inf=1e303;zoom=None;block_set={"por","exp","atan","arth","ln","arg"}
+inf=1e303;zoom=None;block_set={"por","exp","arctan","arth","ln","arg"}
 class CalculateError(Exception):pass
 #初始化声明
 
@@ -29,7 +29,7 @@ def Zoom(calfunc):
         if calfunc.__name__ in block_set:return calfunc(*args)
         #方块函数调用直接传参
         for p in args:
-            if isinstance(p,tuple) and p[1]==0:p==p[0]
+            if isinstance(p,tuple) and p[1]==0:p=p[0]
             cal.append(p if isinstance(p,int) else t.transint(p))
         #一般函数缩放转化传参
         return calfunc(*cal)
@@ -183,7 +183,7 @@ def ln(x):
     else:
     #实数域自然对数处理
         if x==0:raise CalculateError("对数函数在0处为无定义极点喵,log0趋于负∞喵")
-        if x<zoom:lnx=-ln(zoom*zoom//x)
+        if 0<x<zoom:lnx=-ln(zoom*zoom//x)
         #x<1时利用恒等式ln(x)=-ln(1/x)缩放,绕开大量递推
         else:
             while x>2*zoom:
@@ -261,8 +261,8 @@ def logarithm(o,x,y):
     #一般底数的真数计算
     evaluation={
                 "ln":lambda:lnx,
-                "lg":lambda:basic(basic(lnx,"*",zoom),"/",ln10()),
-                "log":lambda:basic(basic(lnx,"*",zoom),"/",lny)
+                "lg":lambda:basic(lnx,"/",ln10()),
+                "log":lambda:basic(lnx,"/",lny)
                 }#推导式
     return evaluation[o]()
 

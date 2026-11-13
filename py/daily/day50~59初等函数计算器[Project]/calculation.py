@@ -1,8 +1,8 @@
 #=========计算包=========#
 """
-                           计算包\n
-                基于浮点数缩放为大整数进行计算\n
-        传入与返回值均为网格值(真值*zoom)的整数结果\n
+计算包\n
+基于浮点数缩放为大整数进行计算\n
+传入与返回值均为网格值(真值*zoom)的整数结果\n
 方块函数为模块内调用且只由模块内一般函数传缩放后参数故无需内部缩放\n
 """
 #=========计算包=========#
@@ -12,7 +12,7 @@ try:
 except ModuleNotFoundError:pass
 #调用打包复制工具(可删,以下为正文)
 #=========计算包=========#
-import transformer as t
+import transformer as t;import information
 inf=1e303;zoom=None;block_set={"por","exp","arctan","arth","ln","arg"}
 class CalculateError(Exception):pass
 #初始化声明
@@ -20,7 +20,7 @@ class CalculateError(Exception):pass
 #---defblock---#
 
 def Zoom(calfunc):
-    """"缩放装饰器用于给出缩放精度喵"""
+    """缩放装饰器用于给出缩放精度喵"""
     def wrapper(*args):
         """前面参数为运算数，最后一个参数为运算符喵"""
         global zoom
@@ -65,7 +65,7 @@ def basic(x,o,y):
 @Zoom
 def arg(z):
     """
-               方块函数\n
+    方块函数\n
     辐角函数用于转化复数极坐标辐角喵\n
     """
     r,i=z
@@ -80,7 +80,7 @@ def arg(z):
 @Zoom
 def por(x,y):
     """
-             方块函数\n
+    方块函数\n
     整数幂函数用于计算整数次方喵\n
     """
     if y<0:return zoom*zoom//por(x,-y)
@@ -96,7 +96,7 @@ def por(x,y):
 @Zoom
 def exp(x):
     """
-              方块函数\n
+    方块函数\n
     自然指数函数用于计算e的x次方喵\n
     """
     Rn=10**(t.P-t.precision-3)
@@ -109,7 +109,7 @@ def exp(x):
             #首项自带缩放,后续项去缩放
         return por(e(),I)*expx//zoom
     else:
-        #复数域自然指数处理
+    #复数域自然指数处理
         z=x;r,i=z
         I=r//zoom;D=r%zoom;i%=2*pi();z=(D,i)
         n=0;T=(zoom,0);expz=(zoom,0)
@@ -123,7 +123,7 @@ def exp(x):
 @Zoom
 def arctan(x):
     """
-             方块函数\n
+    方块函数\n
     反正切函数用于计算arctan(x)喵\n
     """
     Rn=10**(t.P-t.precision-3)
@@ -144,7 +144,7 @@ def arctan(x):
 @Zoom
 def arth(x):
     """
-              方块函数\n
+    方块函数\n
     反双曲正切函数用于计算arth(x)喵\n
     """
     Rn=10**(t.P-t.precision-3)
@@ -171,7 +171,7 @@ def arth(x):
 @Zoom
 def ln(x):
     """
-             方块函数\n
+    方块函数\n
     自然对数函数用于计算ln(x)喵\n
     """
     lnx=None;k=0
@@ -212,8 +212,19 @@ def exponent(x,y):
         #整数幂
         else:
         #非整数幂
-            I=y//zoom;D=y%zoom
-            return por(x,I)*exp(D*ln(x)//zoom)//zoom
+            I=y//zoom;D=y%zoom;M=absolute(x);A=por(M,I)*exp(D*ln(M)//zoom)//zoom
+            if x>0:return A
+            #正数结果
+            else:
+            #负数结果
+                information.c_divpow_neg
+                epsilon=10**(t.P-15)
+                if D<=epsilon or zoom-D<=epsilon:return por(x,I) if D<=epsilon else por(x,I+1)
+                for dend in range(2,10**((t.P-10)//2+1)):
+                    if dend%2:
+                        sor=(D*dend+zoom//2)//zoom
+                        if absolute(D*dend-sor*zoom)<=epsilon:return -A if I*dend+sor%2 else A
+                return exp(basic(y,"*",ln(x)))
 
 #---defblock---#
 

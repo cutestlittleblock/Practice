@@ -36,38 +36,38 @@ def stack(put):
         #算符入栈
             if p not in ("!","!!"):
             #基础算符入栈
-                if p in ("+","-") and (i==0 or put[i-1] in operator_weight or put[i-1] in function_tuple):
+                if p in ("+","-") and (i == 0 or put[i-1] in operator_weight or put[i-1] in function_tuple):
                 #一阶算符合并
-                    num.append(1 if p=="+" else -1);ope.append("@")
+                    num.append(1 if p == "+" else -1);ope.append("@")
                 
                 else:
                 #高阶算符入栈
                     while ope and (
-                                operator_weight[p]<operator_weight[ope[-1]] if p=="^" 
-                                else operator_weight[p]<=operator_weight[ope[-1]]
+                                operator_weight[p] < operator_weight[ope[-1]] if p == "^" 
+                                else operator_weight[p] <= operator_weight[ope[-1]]
                                 ):
                     #栈权判断
                         y=num.pop();x=num.pop();o=ope.pop()
                         num.append(c.basic(x,o,y))
                     ope.append(p)
 
-            else:num.append(c.gamma(num.pop(),"!") if p=="!" else c.gamma(num.pop(),"!!"))
+            else:num.append(c.gamma(num.pop(),"!") if p == "!" else c.gamma(num.pop(),"!!"))
             #伽马函数入栈
         elif p in brackt_pair.values():ope.append(p)
         #括号及绝对值入栈
         elif p in brackt_pair:
         #括号及绝对值出栈
-            while ope[-1]!=brackt_pair[p]:
+            while ope[-1] != brackt_pair[p]:
             #出栈循环
                 y=num.pop();x=num.pop();o=ope.pop()
                 num.append(c.basic(x,o,y))
             ope.pop()
 
-            if p==">":num.append(c.absorlute(num.pop()))
+            if p == ">":num.append(c.absorlute(num.pop()))
             #绝对值判断
-            if i<len(put)-1 and put[i+1] in (*function_tuple,"(","<",*constent,"i"):
+            if i < len(put)-1 and put[i+1] in (*function_tuple,"(","<",*constent,"i"):
             #隐乘法判断
-                while ope and operator_weight["*"]<=operator_weight[ope[-1]]:
+                while ope and operator_weight["*"] <= operator_weight[ope[-1]]:
                 #栈权判断
                     y=num.pop();x=num.pop();o=ope.pop()
                     num.append(c.basic(x,o,y))
@@ -75,15 +75,15 @@ def stack(put):
 
         else:
         #数字与角度入栈
-            if p in ("e","pi","π","i"):num.append(constent[p] if p!="i" else (0,10**t.P))
+            if p in ("e","pi","π","i"):num.append(constent[p] if p != "i" else (0,10**t.P))
             #e,π入栈,i以(0,10**P)元组形式分部入栈
-            elif p=="°":num.append(c.basic(c.basic(num.pop(),"/","180"),"*",constent["π"]))
+            elif p == "°":num.append(c.basic(c.basic(num.pop(),"/","180"),"*",constent["π"]))
             #角度转弧度入栈
             else:num.append(p)
             #数字入栈
-            if i<len(put)-1 and put[i+1] in (*function_tuple,"(","<",*constent,"i"):
+            if i < len(put)-1 and put[i+1] in (*function_tuple,"(","<",*constent,"i"):
             #隐乘法判断
-                while ope and operator_weight["*"]<=operator_weight[ope[-1]]:
+                while ope and operator_weight["*"] <= operator_weight[ope[-1]]:
                 #栈权判断
                     y=num.pop();x=num.pop();o=ope.pop()
                     num.append(c.basic(x,o,y))

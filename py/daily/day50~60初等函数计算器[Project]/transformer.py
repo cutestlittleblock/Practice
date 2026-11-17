@@ -33,12 +33,12 @@ def adjustment(switch):
     """该函数用于调节精度喵"""
     global precision,P
     #初始化声明
-    if switch=="p":precision=None;P=None
+    if switch == "p":precision=None;P=None
     #精度复位
     while precision is None:
         try:
             precision=int(input("你需要小数点后几位喵："))
-            if precision<0:raise ValueError
+            if precision < 0:raise ValueError
         except (ValueError, TypeError):print("没有这样的精度喵");precision=None;continue
     P=precision*2+10
 
@@ -64,7 +64,7 @@ def transstr(N):
     if isinstance(N,tuple):
     #复数答案处理
         R=transstr(N[0]);I=transstr(N[1])
-        if N[0] and N[1]:return R+(I if I[0]=="-" else "+"+I)+"i"
+        if N[0] and N[1]:return R+(I if I[0] == "-" else "+"+I)+"i"
         else:return (I+"i" if N[0]==0 else R)
 
     A=str(((N if N>=0 else -N)+zoom//2)//zoom).zfill(precision+1)

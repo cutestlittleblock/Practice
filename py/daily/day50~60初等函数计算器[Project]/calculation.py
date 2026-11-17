@@ -13,7 +13,7 @@ except ModuleNotFoundError:pass
 #调用打包复制工具(可删,以下为正文)
 #=========计算包=========#
 import transformer as t;import information
-inf=1e303;zoom=None;block_set={"por","exp","arctan","arth","ln","arg"}
+inf=1e303;zoom=None;block_set={"reduce","arg","por","exp","arctan","arth","ln"}
 class CalculateError(Exception):pass
 #初始化声明
 
@@ -29,7 +29,7 @@ def Zoom(calfunc):
         if calfunc.__name__ in block_set:return calfunc(*args)
         #方块函数调用直接传参
         for p in args:
-            if isinstance(p,tuple) and p[1]==0:p=p[0]
+            if isinstance(p,tuple) and p[1] == 0:p=p[0]
             cal.append(p if isinstance(p,int) else t.transint(p))
         #一般函数缩放转化传参
         return calfunc(*cal)
@@ -39,26 +39,58 @@ def Zoom(calfunc):
 
 @Zoom
 def basic(x,o,y):
-    """该函数用于进行基本四则运算及处理幂函数喵"""
+    """该函数用于进行基本四则及幂运算喵"""
     evaluation={
                 "+":lambda x,y:x+y,"-":lambda x,y:x-y,
-                "*":lambda x,y:x*y//zoom,"/":lambda x,y:x*zoom//y,
-                "//":lambda x,y:(x//y)*zoom,"%":lambda x,y:x%y,
+                "*":lambda x,y:x*y//zoom,"/":lambda x,y:reduce([x,y]),
+                "//":lambda x,y:(x*zoom)//y,"%":lambda x,y:x%y,
                 "@":lambda x,y:x*y,"^":exponent
                 }#推导式
     #初始化声明
     if isinstance(x,tuple) or isinstance(y,tuple):
-    #复数计算
+    #复数运算
+        if isinstance(x,list):x=(basic(x,"//",None),0)
+        if isinstance(y,list):y=(basic(y,"//",None),0)
+        #去分式
         x=x if isinstance(x,tuple) else (x,0);y=y if isinstance(y,tuple) else (y,0)
         xr,xi=x;yr,yi=y
         if o in ("+","-"):return (evaluation[o](xr,yr),evaluation[o](xi,yi))
         elif o in ("*","@"):return (evaluation[o](xr,yr)-evaluation[o](xi,yi),evaluation[o](xr,yi)+evaluation[o](xi,yr))
-        elif o=="/":return (evaluation[o](xr*yr+xi*yi,yi*yi+yr*yr),evaluation[o](xi*yr-xr*yi,yi*yi+yr*yr))
-        elif o=="^":return exponent(x,y)
+        elif o == "/":return (evaluation["//"](xr*yr+xi*yi,yi*yi+yr*yr),evaluation["//"](xi*yr-xr*yi,yi*yi+yr*yr))
+        elif o == "^":return exponent(x,y)
         else:raise CalculateError("复数不能整除喵" if o=="//" else "复数不能取模喵")
+
+    if isinstance(x,list) or isinstance(y,list):
+    #分式运算
+        x=x if isinstance(x,list) else [x,zoom];y=y if isinstance(y,list) else [y,zoom]
+        sorx,dendx=x;sory,dendy=y
+        if o in ("+","-"):return reduce([basic(basic(sorx,"*",dendy),o,basic(sory,"*",dendx)),basic(dendx,"*",dendy)])
+        if o in ("*","@"):return reduce([basic(sorx,"*",sory),basic(dendx,"*",dendy)])
+        if o == "/":return reduce([basic(sorx,"*",dendy),basic(dendx,"*",sory)])
+        if o == "^":return reduce([exponent(sorx,y),exponent(dendx,y)])
+        if o == "//":return (x[0]//x[1])*zoom
+        if o == "%":return basic(x,"//",None)%basic(y,"//",None)
 
     else:return evaluation[o](x,y)
     #实数运算
+
+#---defblock---#
+
+@Zoom
+def reduce(x):
+    """
+    方块函数\n
+    约化函数用于约化分式或zoom尺度上的小数喵\n
+    """
+    if not isinstance(x,list):x=[x,zoom]
+    #小数分式化
+    sor,dend=x;gcd=1
+    #初始化声明
+    p,q=(absolute(sor),absolute(dend)) if absolute(sor) >= absolute(dend) else (absolute(dend),absolute(sor))
+    while q != 0:p,q=q,p%q
+    gcd=p;x=[sor//gcd,dend//gcd]
+    #约化分式
+    return x
 
 #---defblock---#
 
@@ -69,10 +101,10 @@ def arg(z):
     辐角函数用于转化复数极坐标辐角喵\n
     """
     r,i=z
-    if r==0:return pi()//2 if i>0 else -pi()//2
+    if r == 0:return ((pi()//2) if i > 0 else (-pi()//2))
     #实部为0时辐角为±pi/2
-    if r>0:return arctan(i*zoom//r)
-    else:return pi()+arctan(i*zoom//r) if i>=0 else -pi()+arctan(i*zoom//r)
+    if r > 0:return arctan(i*zoom//r)
+    else:return ((pi()+arctan(i*zoom//r)) if i >= 0 else (-pi()+arctan(i*zoom//r)))
     #II,III象限辐角回归:II:pi-|arctan(i/r)|,III:-pi+|arctan(i/r)|
 
 #---defblock---#
@@ -83,12 +115,12 @@ def por(x,y):
     方块函数\n
     整数幂函数用于计算整数次方喵\n
     """
-    if y<0:return zoom*zoom//por(x,-y)
+    if y < 0:return zoom*zoom//por(x,-y)
     #倒数处理:x^-y=1/x^y;(x^-y)*zoom=zoom*zoom//(x^y)
     xy=zoom
     while y:
         if y&1:xy=xy*x//zoom
-        x=x*x//zoom;y>>=1
+        x=x*x//zoom;y >>= 1
     return xy
 
 #---defblock---#
@@ -103,17 +135,19 @@ def exp(x):
     if not isinstance(x,tuple):
     #实数域自然指数处理
         n=0;T=zoom;expx=zoom;I=x//zoom;D=x%zoom
-        while T>=Rn:
+        while T >= Rn:
+            if x == zoom:D=1
+            #e的初始化
             n+=1;T=T*D//(zoom*n);expx+=T
             #T{n}=x^n/n!;Tn=T{n-1}*x/n--ZOOM-->Tn=T{n-1}*x//(zoom*n)
             #首项自带缩放,后续项去缩放
-        return por(e(),I)*expx//zoom
+        return (por(e(),I)*expx//zoom if x!=zoom else expx)
     else:
     #复数域自然指数处理
         z=x;r,i=z
         I=r//zoom;D=r%zoom;i%=2*pi();z=(D,i)
         n=0;T=(zoom,0);expz=(zoom,0)
-        while T[0]*T[0]+T[1]*T[1]>=Rn*Rn:
+        while T[0]*T[0]+T[1]*T[1] >= Rn*Rn:
             n+=1;T=basic(T,"*",basic(z,"/",zoom*n));expz=basic(expz,"+",T)
         expz=basic(por(e(),I),"*",expz)
         return expz
@@ -130,10 +164,10 @@ def arctan(x):
     n=0;T=x;atanx=x
     if not isinstance(x,tuple):
     #实数域反正切处理
-        if abs(x)==zoom:return pi()//4 if x>0 else -pi()//4
-        if abs(x)>zoom:return pi()//2-arctan(zoom*zoom//x) if x>0 else -pi()//2-arctan(zoom*zoom//x)
+        if abs(x) == zoom:return ((pi()//4) if x > 0 else (-pi()//4))
+        if abs(x) > zoom:return ((pi()//2-arctan(zoom*zoom//x)) if x > 0 else (-pi()//2-arctan(zoom*zoom//x)))
         #x=±1时arctan(1)=±pi/4,|x|>1时利用恒等式atan(x)=±pi/2-atan(1/x),绕开大量(约10^(p+3)项)递推
-        while T>=Rn or T<=-Rn:
+        while T >= Rn or T <= -Rn:
             n+=1;T=-T*x*x*(2*n-1)//(zoom*zoom*(2*n+1));atanx+=T
             #T{n}=(-1)^n*x^(2n+1)/(2n+1);T{n}=-T{n-1}*x^2*(2n-1)/(2n+1)--ZOOM-->T{n}=-T{n-1}*x*x*(2n-1)//(zoom*zoom*(2n+1))
             #首项自带缩放,后续项去缩放
@@ -185,15 +219,15 @@ def ln(x):
         if x==0:raise CalculateError("对数函数在0处为无定义极点喵,log0趋于负∞喵")
         if 0<x<zoom:lnx=-ln(zoom*zoom//x)
         #x<1时利用恒等式ln(x)=-ln(1/x)缩放,绕开大量递推
+        if x<0:return (ln(-x),pi())
+        #超实数域定义转复数域        
         else:
-            while x>2*zoom:
+            while x > 2*zoom:
                 x//=2;k+=1
             #x>2时利用lnx=kln2+ln(x/2^k)的恒等式,将x缩小到[1,2]区间内
             lnx=ln2()*k+arth((x-zoom)*zoom//(x+zoom))*2
             #莫比乌斯变换:lnx=2*arth((x-1)/(x+1))
             return lnx
-        if x<0:return (ln(-x),pi())
-        #超实数域定义转复数域
 
 #---defblock---#
 
@@ -204,27 +238,28 @@ def exponent(x,y):
     #复数幂
     else:
     #实数幂
-        if x==0 and y>0:return 0
-        if x==0 and y==0:return zoom
-        if x==0 and y<0:raise CalculateError("0的负数次幂为无定义极点喵,趋于∞喵")
-        #0的幂
-        if y%zoom==0:return por(x,y//zoom)
+        if x == 0:
+            y=basic(y,"//",None) if isinstance(y,list) else y
+            if y < 0:raise CalculateError("0的负数次幂为无定义极点喵,趋于∞喵")
+            else:return zoom if y == 0 else 0
+        if x == zoom:return zoom
+        #0,1的幂
+        if y%zoom == 0:return por(x,y//zoom)
         #整数幂
         else:
         #非整数幂
-            I=y//zoom;D=y%zoom;M=absolute(x);A=por(M,I)*exp(D*ln(M)//zoom)//zoom
-            if x>0:return A
-            #正数结果
+            if isinstance(y,list):
+            #分式幂处理
+                sor,dend=y;d=basic(y,"//",None);I=d//zoom;D=d%zoom
+                M=absolute(x);A=por(M,I)*exp(D*ln(M)//zoom)//zoom
+                #初始化声明
+                if x > 0:return A
+                #正底数处理
+                if dend%2:return -A if sor%2 else A
             else:
-            #负数结果
-                information.c_divpow_neg
-                epsilon=10**(t.P-15)
-                if D<=epsilon or zoom-D<=epsilon:return por(x,I) if D<=epsilon else por(x,I+1)
-                for dend in range(2,10**((t.P-10)//2+1)):
-                    if dend%2:
-                        sor=(D*dend+zoom//2)//zoom
-                        if absolute(D*dend-sor*zoom)<=epsilon:return -A if I*dend+sor%2 else A
-                return exp(basic(y,"*",ln(x)))
+            #小数幂处理
+                I=y//zoom;D=y%zoom
+                return por(x,I)*exp(D*ln(x)//zoom)//zoom
 
 #---defblock---#
 
@@ -233,7 +268,7 @@ def absolute(x):
     """绝对值函数用于计算绝对值和模长喵"""
     if isinstance(x,tuple):return exponent(por(x[0],2)+por(x[1],2),zoom//2)
     #复数模运算:(xr^2+xi^2)^(1/2)
-    return(x if x>=0 else -x)
+    return(x if x >= 0 else -x)
     #实数绝对值运算
 
 #---defblock---#
@@ -241,12 +276,12 @@ def absolute(x):
 @Zoom
 def gamma(x,o):
     """伽马函数用于计算(双)阶乘喵"""
-    if o=="!!":
+    if o == "!!":
     #双阶乘计算
         try:
             if x%zoom or x<0:raise ValueError
             x//=zoom;y=x
-            if x==0 or x==1:return zoom
+            if x == 0 or x == 1:return zoom
         except (ValueError, TypeError):raise CalculateError("双阶乘的输入必须正整数喵")
         for n in range(x-2,1,-2):y*=n
         return y*zoom
@@ -257,7 +292,7 @@ def gamma(x,o):
             if x%zoom or x<0:raise ValueError
             if not x%zoom and x<0:raise CalculateError("负整数阶乘为无定义极点喵,趋于∞喵")
             x//=zoom;y=x
-            if x==0:return zoom
+            if x == 0:return zoom
             for n in range(x-1,1,-1):y*=n
             return y*zoom
         except (ValueError, TypeError):pass
@@ -268,7 +303,7 @@ def gamma(x,o):
 def logarithm(o,x,y):
     """对数函数用于计算log(x)喵"""
     lnx=ln(x)
-    if y!=None:lny=ln(y)
+    if y != None:lny=ln(y)
     #一般底数的真数计算
     evaluation={
                 "ln":lambda:lnx,
@@ -293,12 +328,12 @@ def trigono(o,x):
         sinz=basic(basic(exp((-i,r)),"-",exp((i,-r))),"/",(0,2*zoom));cosz=basic(basic(exp((-i,r)),"+",exp((i,-r))),"/",2*zoom)
         #sinz=(e^(-iz)-e^(iz))/(2i);cosz=(e^(-iz)+e^(iz))/2;z*i=(r,i)*i=(-i,r)复平面旋转
     evaluation={
-                "sin":lambda:sinx if sinx!=None else sinz,
-                "cos":lambda:cosx if cosx!=None else cosz,
-                "tan":lambda:basic(sinx,"/",cosx) if sinx!=None else basic(sinz,"/",cosz),
-                "cot":lambda:basic(cosx,"/",sinx) if cosx!=None else basic(cosz,"/",sinz),
-                "sec":lambda:basic(zoom,"/",cosx) if cosx!=None else basic(zoom,"/",cosz),
-                "csc":lambda:basic(zoom,"/",sinx) if sinx!=None else basic(zoom,"/",sinz)
+                "sin":lambda:sinx if sinx != None else sinz,
+                "cos":lambda:cosx if cosx != None else cosz,
+                "tan":lambda:basic(sinx,"/",cosx) if sinx != None else basic(sinz,"/",cosz),
+                "cot":lambda:basic(cosx,"/",sinx) if cosx != None else basic(cosz,"/",sinz),
+                "sec":lambda:basic(zoom,"/",cosx) if cosx != None else basic(zoom,"/",cosz),
+                "csc":lambda:basic(zoom,"/",sinx) if sinx != None else basic(zoom,"/",sinz)
                 }#推导式
     return evaluation[o]()
 

@@ -64,11 +64,11 @@ def basic(x,o,y):
     #分式运算
         x=x if isinstance(x,list) else [x,zoom];y=y if isinstance(y,list) else [y,zoom]
         sorx,dendx=x;sory,dendy=y
-        if o in ("+","-"):return reduce([basic(basic(sorx,"*",dendy),o,basic(sory,"*",dendx)),basic(dendx,"*",dendy)])
-        if o in ("*","@"):return reduce([basic(sorx,"*",sory),basic(dendx,"*",dendy)])
-        if o == "/":return reduce([basic(sorx,"*",dendy),basic(dendx,"*",sory)])
+        if o in ("+","-"):return reduce([basic(sorx*dendy,o,sory*dendx),dendx*dendy])
+        if o in ("*","@"):return reduce([sorx*sory,dendx*dendy])
+        if o == "/":return reduce([sorx*dendy,dendx*sory])
         if o == "^":return reduce([exponent(sorx,y),exponent(dendx,y)])
-        if o == "//":return (x[0]//x[1])*zoom
+        if o == "//":return (x[0]*zoom)//x[1]
         if o == "%":return basic(x,"//",None)%basic(y,"//",None)
 
     else:return evaluation[o](x,y)
@@ -85,8 +85,11 @@ def reduce(x):
     if not isinstance(x,list):x=[x,zoom]
     #小数分式化
     sor,dend=x;gcd=1
+    if dend < 0:sor,dend=-sor,-dend
+    #分母恒正
+    if dend == 0:raise ZeroDivisionError
     #初始化声明
-    p,q=(absolute(sor),absolute(dend)) if absolute(sor) >= absolute(dend) else (absolute(dend),absolute(sor))
+    p,q=absolute(sor),absolute(dend)
     while q != 0:p,q=q,p%q
     gcd=p;x=[sor//gcd,dend//gcd]
     #约化分式
@@ -131,6 +134,8 @@ def exp(x):
     方块函数\n
     自然指数函数用于计算e的x次方喵\n
     """
+    if isinstance(x,list):x=(basic(x,"//",None),0)
+    #去分式
     Rn=10**(t.P-t.precision-3)
     if not isinstance(x,tuple):
     #实数域自然指数处理
@@ -160,6 +165,8 @@ def arctan(x):
     方块函数\n
     反正切函数用于计算arctan(x)喵\n
     """
+    if isinstance(x,list):x=(basic(x,"//",None),0)
+    #去分式
     Rn=10**(t.P-t.precision-3)
     n=0;T=x;atanx=x
     if not isinstance(x,tuple):
@@ -181,6 +188,8 @@ def arth(x):
     方块函数\n
     反双曲正切函数用于计算arth(x)喵\n
     """
+    if isinstance(x,list):x=(basic(x,"//",None),0)
+    #去分式
     Rn=10**(t.P-t.precision-3)
     n=0;T=x;arthx=x
     if not isinstance(x,tuple):
@@ -208,6 +217,11 @@ def ln(x):
     方块函数\n
     自然对数函数用于计算ln(x)喵\n
     """
+    if isinstance(x,list):x=(basic(x,"//",None),0)
+    #去分式
+    if x == 2*10**t.P:return 2*arth(basic("1","/","3"))
+    if x == 10*10**t.P:return 3*ln2()+2*arth("5","/","4")
+    #ln2,ln10的特殊值处理
     lnx=None;k=0
     if isinstance(x,tuple):
     #复数域自然对数处理
@@ -238,28 +252,31 @@ def exponent(x,y):
     #复数幂
     else:
     #实数幂
-        if x == 0:
-            y=basic(y,"//",None) if isinstance(y,list) else y
-            if y < 0:raise CalculateError("0的负数次幂为无定义极点喵,趋于∞喵")
-            else:return zoom if y == 0 else 0
-        if x == zoom:return zoom
-        #0,1的幂
-        if y%zoom == 0:return por(x,y//zoom)
-        #整数幂
-        else:
-        #非整数幂
-            if isinstance(y,list):
-            #分式幂处理
-                sor,dend=y;d=basic(y,"//",None);I=d//zoom;D=d%zoom
-                M=absolute(x);A=por(M,I)*exp(D*ln(M)//zoom)//zoom
-                #初始化声明
-                if x > 0:return A
-                #正底数处理
+        if isinstance(y,list):
+        #分式幂处理
+            sor,dend=y;d=basic(y,"//",None);I=d//zoom;D=d%zoom
+            M=absolute(x);A=basic(por(M,I),"*",exp(D*ln(M)//zoom)//zoom)
+            #初始化声明
+            if x > 0:return A
+            #正底数处理
+            else:
+            #负底数处理
                 if dend%2:return -A if sor%2 else A
+                else:return basic(por(x,I),"*",exp(D*ln(x)//zoom)//zoom)
+        else:
+        #非分式幂处理
+            if x == 0:
+                y=basic(y,"//",None) if isinstance(y,list) else y
+                if y < 0:raise CalculateError("0的负数次幂为无定义极点喵,趋于∞喵")
+                else:return zoom if y == 0 else 0
+            if x == zoom:return zoom
+            #0,1的幂
+            if y%zoom == 0:return por(x,y//zoom)
+            #整数幂
             else:
             #小数幂处理
                 I=y//zoom;D=y%zoom
-                return por(x,I)*exp(D*ln(x)//zoom)//zoom
+                return basic(por(x,I),"*",exp(D*ln(x)//zoom)//zoom)
 
 #---defblock---#
 

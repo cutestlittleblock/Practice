@@ -10,10 +10,12 @@ try:
 except ModuleNotFoundError:pass
 #调用打包复制工具(可删,以下为正文)
 #=========主交互文件=========#
-import transformer as t;import stack as s;import calculation as c
+import transformer as t;import stack as s;import calculation as c;import information as i
 #初始化声明
 def run(shift):
     """这是主程序运行函数喵"""
+    if shift == "h":print(i.help.__doc__)
+    #帮助文档
     put_stack=t.token.findall(input("我需要算什么喵："))
     #分词入栈
     t.adjustment(shift)

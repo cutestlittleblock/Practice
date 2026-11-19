@@ -85,6 +85,8 @@ def reduce(x):
     if not isinstance(x,list):x=[x,zoom]
     #小数分式化
     sor,dend=x;gcd=1
+    if isinstance(sor,tuple) or isinstance(dend,tuple):return basic(sor,"/",dend)
+    #复数遣返
     if dend < 0:sor,dend=-sor,-dend
     #分母恒正
     if dend == 0:raise ZeroDivisionError
@@ -134,14 +136,14 @@ def exp(x):
     方块函数\n
     自然指数函数用于计算e的x次方喵\n
     """
-    if isinstance(x,list):x=(basic(x,"//",None),0)
+    if isinstance(x,list):x=basic(x,"//",None)
     #去分式
     Rn=10**(t.P-t.precision-3)
     if not isinstance(x,tuple):
     #实数域自然指数处理
         n=0;T=zoom;expx=zoom;I=x//zoom;D=x%zoom
         while T >= Rn:
-            if x == zoom:D=1
+            if x == zoom:D=zoom
             #e的初始化
             n+=1;T=T*D//(zoom*n);expx+=T
             #T{n}=x^n/n!;Tn=T{n-1}*x/n--ZOOM-->Tn=T{n-1}*x//(zoom*n)
@@ -165,7 +167,7 @@ def arctan(x):
     方块函数\n
     反正切函数用于计算arctan(x)喵\n
     """
-    if isinstance(x,list):x=(basic(x,"//",None),0)
+    if isinstance(x,list):x=basic(x,"//",None)
     #去分式
     Rn=10**(t.P-t.precision-3)
     n=0;T=x;atanx=x
@@ -179,6 +181,8 @@ def arctan(x):
             #T{n}=(-1)^n*x^(2n+1)/(2n+1);T{n}=-T{n-1}*x^2*(2n-1)/(2n+1)--ZOOM-->T{n}=-T{n-1}*x*x*(2n-1)//(zoom*zoom*(2n+1))
             #首项自带缩放,后续项去缩放
         return atanx
+    else:pass###
+    #复数域反正切处理
 
 #---defblock---#
 
@@ -188,7 +192,7 @@ def arth(x):
     方块函数\n
     反双曲正切函数用于计算arth(x)喵\n
     """
-    if isinstance(x,list):x=(basic(x,"//",None),0)
+    if isinstance(x,list):x=basic(x,"//",None)
     #去分式
     Rn=10**(t.P-t.precision-3)
     n=0;T=x;arthx=x
@@ -217,7 +221,7 @@ def ln(x):
     方块函数\n
     自然对数函数用于计算ln(x)喵\n
     """
-    if isinstance(x,list):x=(basic(x,"//",None),0)
+    if isinstance(x,list):x=basic(x,"//",None)
     #去分式
     if x == 2*10**t.P:return 2*arth(basic("1","/","3"))
     if x == 10*10**t.P:return 3*ln2()+2*arth("5","/","4")
@@ -255,14 +259,14 @@ def exponent(x,y):
         if isinstance(y,list):
         #分式幂处理
             sor,dend=y;d=basic(y,"//",None);I=d//zoom;D=d%zoom
-            M=absolute(x);A=basic(por(M,I),"*",exp(D*ln(M)//zoom)//zoom)
+            A=absolute(basic(por(x,I),"*",exp(basic(D,"*",ln(x)))))
             #初始化声明
             if x > 0:return A
             #正底数处理
             else:
             #负底数处理
                 if dend%2:return -A if sor%2 else A
-                else:return basic(por(x,I),"*",exp(D*ln(x)//zoom)//zoom)
+                else:return basic(por(x,I),"*",exp(basic(D,"*",ln(x))))
         else:
         #非分式幂处理
             if x == 0:
@@ -276,7 +280,7 @@ def exponent(x,y):
             else:
             #小数幂处理
                 I=y//zoom;D=y%zoom
-                return basic(por(x,I),"*",exp(D*ln(x)//zoom)//zoom)
+                return basic(por(x,I),"*",exp(basic(D,"*",ln(x))))
 
 #---defblock---#
 

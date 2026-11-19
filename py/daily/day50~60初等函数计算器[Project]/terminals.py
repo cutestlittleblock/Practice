@@ -15,10 +15,11 @@ try:
 except ModuleNotFoundError:pass
 #调用打包复制工具(可删,以下为正文)
 #=========终端=========#
-import main
+import main,information
 shift=True
+print(information.help.__doc__)
 #初始化声明
 while shift:
 #运行
     main.run(shift)
-    shift=input("回车下班喵,键入h查看帮助喵,键入p改变精度喵,键入其他任意继续算喵:")
+    shift=input("回车下班喵,键入p改变精度喵,键入其他任意继续算喵:")

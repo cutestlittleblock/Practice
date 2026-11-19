@@ -12,8 +12,8 @@ try:
 except ModuleNotFoundError:pass
 #调用打包复制工具(可删,以下为正文)
 #=========计算包=========#
-import transformer as t;import information
-inf=1e303;zoom=None;block_set={"reduce","arg","por","exp","arctan","arth","ln"}
+import transformer as t;import information as i
+inf=1e303;zoom=None;block_set={"reduce","arg","ipow","exp","arctan","arth","ln"}
 class CalculateError(Exception):pass
 #初始化声明
 
@@ -40,6 +40,7 @@ def Zoom(calfunc):
 @Zoom
 def basic(x,o,y):
     """该函数用于进行基本四则及幂运算喵"""
+
     evaluation={
                 "+":lambda x,y:x+y,"-":lambda x,y:x-y,
                 "*":lambda x,y:x*y//zoom,"/":lambda x,y:reduce([x,y]),
@@ -115,12 +116,12 @@ def arg(z):
 #---defblock---#
 
 @Zoom
-def por(x,y):
+def ipow(x,y):
     """
     方块函数\n
     整数幂函数用于计算整数次方喵\n
     """
-    if y < 0:return zoom*zoom//por(x,-y)
+    if y < 0:return zoom*zoom//ipow(x,-y)
     #倒数处理:x^-y=1/x^y;(x^-y)*zoom=zoom*zoom//(x^y)
     xy=zoom
     while y:
@@ -148,7 +149,7 @@ def exp(x):
             n+=1;T=T*D//(zoom*n);expx+=T
             #T{n}=x^n/n!;Tn=T{n-1}*x/n--ZOOM-->Tn=T{n-1}*x//(zoom*n)
             #首项自带缩放,后续项去缩放
-        return (por(e(),I)*expx//zoom if x!=zoom else expx)
+        return (ipow(e(),I)*expx//zoom if x!=zoom else expx)
     else:
     #复数域自然指数处理
         z=x;r,i=z
@@ -156,7 +157,7 @@ def exp(x):
         n=0;T=(zoom,0);expz=(zoom,0)
         while T[0]*T[0]+T[1]*T[1] >= Rn*Rn:
             n+=1;T=basic(T,"*",basic(z,"/",zoom*n));expz=basic(expz,"+",T)
-        expz=basic(por(e(),I),"*",expz)
+        expz=basic(ipow(e(),I),"*",expz)
         return expz
 
 #---defblock---#
@@ -252,42 +253,43 @@ def ln(x):
 @Zoom
 def exponent(x,y):
     """幂函数用于计算乘方喵"""
+    i.c_exponent
     if isinstance(x,tuple) or isinstance(y,tuple):return exp(basic(y,"*",ln(x)))
     #复数幂
     else:
     #实数幂
+        if x == 0:
+            y=basic(y,"//",None) if isinstance(y,list) else y
+            if y < 0:raise CalculateError("0的负数次幂为无定义极点喵,趋于∞喵")
+            else:return zoom if y == 0 else 0
+        if x == zoom:return zoom
+        #0,1的幂
         if isinstance(y,list):
         #分式幂处理
             sor,dend=y;d=basic(y,"//",None);I=d//zoom;D=d%zoom
-            A=absolute(basic(por(x,I),"*",exp(basic(D,"*",ln(x)))))
+            A=absolute(basic(ipow(x,I),"*",exp(basic(D,"*",ln(x)))))
             #初始化声明
             if x > 0:return A
             #正底数处理
             else:
             #负底数处理
                 if dend%2:return -A if sor%2 else A
-                else:return basic(por(x,I),"*",exp(basic(D,"*",ln(x))))
+                else:return basic(ipow(x,I),"*",exp(basic(D,"*",ln(x))))
         else:
         #非分式幂处理
-            if x == 0:
-                y=basic(y,"//",None) if isinstance(y,list) else y
-                if y < 0:raise CalculateError("0的负数次幂为无定义极点喵,趋于∞喵")
-                else:return zoom if y == 0 else 0
-            if x == zoom:return zoom
-            #0,1的幂
-            if y%zoom == 0:return por(x,y//zoom)
+            if y%zoom == 0:return ipow(x,y//zoom)
             #整数幂
             else:
             #小数幂处理
                 I=y//zoom;D=y%zoom
-                return basic(por(x,I),"*",exp(basic(D,"*",ln(x))))
+                return basic(ipow(x,I),"*",exp(basic(D,"*",ln(x))))
 
 #---defblock---#
 
 @Zoom
 def absolute(x):
     """绝对值函数用于计算绝对值和模长喵"""
-    if isinstance(x,tuple):return exponent(por(x[0],2)+por(x[1],2),zoom//2)
+    if isinstance(x,tuple):return exponent(ipow(x[0],2)+ipow(x[1],2),zoom//2)
     #复数模运算:(xr^2+xi^2)^(1/2)
     return(x if x >= 0 else -x)
     #实数绝对值运算
